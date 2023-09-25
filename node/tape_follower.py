@@ -14,16 +14,17 @@ class tape_follower:
         self.pub = rospy.Publisher("/cmd_vel",Twist, queue_size=1)
         self.sub = rospy.Subscriber("/rrbot/camera1/image_raw", Image, self.callback)
         self.bridge = CvBridge()
+        self.prev_road_center = 0
 
     def callback(self,data):
         try:
             cv_image = self.bridge.imgmsg_to_cv2(data, "bgr8")
             frame_height, frame_width, channels = cv_image.shape
-
+            
             turn_value = self.find_road(cv_image, frame_height, frame_width)
 
             movement = Twist()
-            movement.linear.x = 0.5
+            movement.linear.x = 0.2
             movement.angular.z = turn_value * 2.5
             
             self.pub.publish(movement)
@@ -72,14 +73,18 @@ class tape_follower:
 
         #If no non-zero values found
         if len(non_zero_indices) == 0:
-            return 0
+            return self.prev_road_center
 
         #Get median value from these list of indices, round incase it is non-int
         median = np.median(non_zero_indices)
+        self.prev_road_center = median
 
         return int(median)
     
     def find_road(self, image, frame_height, frame_width):
+
+        radius = 20
+        color = (0,0,255)
 
         imgray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
         ret,th1 = cv2.threshold(imgray,127,255,cv2.THRESH_BINARY_INV)
@@ -88,12 +93,16 @@ class tape_follower:
         # Find centre of road
         centerx_of_circle = self.center_of_road(eroded_image, frame_height)
 
-        if centerx_of_circle < frame_width / 2:
-           return -1
-        elif centerx_of_circle > frame_width / 2:
-           return 1
-        else:
-           return 0
+        # cv2.circle(image,
+        #             (centerx_of_circle, frame_height - radius - 5),
+        #             radius,
+        #             color,
+        #             thickness=cv2.FILLED)
+
+        cv2.imshow("Camera", image)
+        cv2.waitKey(3)
+
+        return (frame_width/2 - centerx_of_circle)/200
 
 def main():
 
