@@ -11,5 +11,10 @@
 	    <arg name="init_pose" value="-x 0.0 -y 0.0 -z 1.0 -R 0.0 -P 0.0 -Y 0.0" />
     </include>
 
+    <node pkg="enph353_ros_lab"
+        type="tape_follower.py"
+        name="tape_follower"
+        output="screen">
+    </node>
 
 </launch>
