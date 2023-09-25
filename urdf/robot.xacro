@@ -16,6 +16,8 @@
 
   <xacro:include filename="$(find enph353_ros_lab)/urdf/macros.xacro"/>
   <xacro:include filename="$(find enph353_ros_lab)/urdf/materials.xacro"/>
+  <xacro:include filename="$(find enph353_ros_lab)/urdf/camera.xacro"/>
+  <xacro:include filename="$(find enph353_ros_lab)/urdf/skid_steer_driver.xacro"/>
 
   <link name='chassis'>
     <xacro:box_inertial name="chassis" m="${chassis_mass}" x="${chassis_length}" y="${chassis_width}" z="${chassis_height}"/>
